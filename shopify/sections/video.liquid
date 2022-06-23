@@ -1,390 +1,220 @@
-<style>
-  {% if section.settings.cover_image %}
-    #VideoSection--{{ section.id }} .video-section__cover-background {
-      background-image: url({{ section.settings.cover_image | img_url: '1024x' | format: 'jpg' }});
-      background-position: {{ section.settings.cover_image_position }};
-    }
-  {% endif %}
-</style>
+{{ 'video-section.css' | asset_url | stylesheet_tag }}
+{{ 'component-deferred-media.css' | asset_url | stylesheet_tag }}
 
-{% if section.settings.show_overlay %}
-  <style>
-    #VideoSection--{{ section.id }} .video-section__cover-text {
-      color: {{ section.settings.overlay_text }};
-    }
+{%- style -%}
+  .section-{{ section.id }}-padding {
+    padding-top: {{ section.settings.padding_top | times: 0.75 | round: 0 }}px;
+    padding-bottom: {{ section.settings.padding_bottom | times: 0.75 | round: 0 }}px;
+  }
 
-    #VideoSection--{{ section.id }} .video-section__load-player-button-triangle {
-      border-left-color: {{ section.settings.overlay_text }};
+  @media screen and (min-width: 750px) {
+    .section-{{ section.id }}-padding {
+      padding-top: {{ section.settings.padding_top }}px;
+      padding-bottom: {{ section.settings.padding_bottom }}px;
     }
+  }
+{%- endstyle -%}
 
-    #VideoSection--{{ section.id }} .video-section__load-player-button.animated .video-section__load-player-button-circle,
-    #VideoSection--{{ section.id }} .video-section__load-player-button-circle {
-      border-color: {{ section.settings.overlay_text }};
-    }
-
-    #VideoSection--{{ section.id }} .video-section__cover-overlay {
-      background-color: {{ section.settings.overlay_color }};
-      opacity: {{ section.settings.overlay_opacity | divided_by: 100.0 }};
-    }
-  </style>
-{% endif %}
-
-<div class="page-width">
-  <div id="VideoSection--{{ section.id }}" class="video-section video-section--{{ section.settings.cover_image_height }}" data-section-id="{{ section.id }}" data-section-type="video" data-video-id="{{ section.settings.video_url.id }}" data-video-type="{{ section.settings.video_url.type }}">
-    <div class="video-section__body-overlay"></div>
-    <div class="video-section__modal">
-      <div class="video-wrapper">
-        <button class="video-section__player-close">
-          <span class="visually-hidden">{{ 'video.close' | t }}</span>
-          {% render 'icon-close' %}
-        </button>
-        <div class="video-section__player"></div>
-      </div>
+<div class="color-{{ section.settings.color_scheme }} gradient">
+  <div class="video-section isolate{% unless section.settings.full_width %} page-width{% endunless %} section-{{ section.id }}-padding">
+    <div{% if section.settings.full_width %} class="page-width"{% endif %}>
+      {%- unless section.settings.heading == blank -%}
+        <div class="title-wrapper title-wrapper--no-top-margin">
+          <h2 class="title {{ section.settings.heading_size }}">{{ section.settings.heading }}</h2>
+        </div>
+      {%- endunless -%}
     </div>
-    <div class="video-section__cover">
-      <div class="video-section__cover-background">
-        {% if section.settings.cover_image == blank %}
-          {{ 'lifestyle-1' | placeholder_svg_tag: 'placeholder-svg' }}
-        {% endif %}
+    <noscript>
+      <div class="video-section__media"
+        {% if section.settings.cover_image != blank %} style="padding-bottom: {{ 1 | divided_by: section.settings.cover_image.aspect_ratio | times: 100 }}%;"{% endif %}
+      >
+        <a href="{{ section.settings.video_url }}" class="video-section__poster media media--transparent media--landscape{% if section.settings.cover_image == blank %} video-section__placeholder{% endif %}">
+          {%- if section.settings.cover_image != blank -%}
+            <img
+              srcset="{%- if section.settings.cover_image.width >= 375 -%}{{ section.settings.cover_image | image_url: width: 375 }} 375w,{%- endif -%}
+                {%- if section.settings.cover_image.width >= 750 -%}{{ section.settings.cover_image | image_url: width: 750 }} 750w,{%- endif -%}
+                {%- if section.settings.cover_image.width >= 1100 -%}{{ section.settings.cover_image | image_url: width: 1100 }} 1100w,{%- endif -%}
+                {%- if section.settings.cover_image.width >= 1500 -%}{{ section.settings.cover_image | image_url: width: 1500 }} 1500w,{%- endif -%}
+                {%- if section.settings.cover_image.width >= 1780 -%}{{ section.settings.cover_image | image_url: width: 1780 }} 1780w,{%- endif -%}
+                {%- if section.settings.cover_image.width >= 2000 -%}{{ section.settings.cover_image | image_url: width: 2000 }} 2000w,{%- endif -%}
+                {%- if section.settings.cover_image.width >= 3000 -%}{{ section.settings.cover_image | image_url: width: 3000 }} 3000w,{%- endif -%}
+                {%- if section.settings.cover_image.width >= 3840 -%}{{ section.settings.cover_image | image_url: width: 3840 }} 3840w,{%- endif -%}
+                {{ section.settings.cover_image | image_url }} {{ section.settings.cover_image.width }}w"
+              src="{{ section.settings.cover_image | image_url: width: 1920 }}"
+              sizes="{% if section.settings.full_width %}100vw{% else %}(min-width: {{ settings.page_width }}px) {{ settings.page_width | minus: 100 }}px, (min-width: 750px) calc(100vw - 10rem), 100vw{% endif %}"
+              alt="{{ 'sections.video.load_video' | t: description: section.settings.description | escape }}"
+              loading="lazy"
+              width="{{ section.settings.cover_image.width }}"
+              height="{{ section.settings.cover_image.height }}"
+            >
+          {%- else -%}
+            {{ 'collection-2' | placeholder_svg_tag: 'placeholder-svg placeholder' }}
+          {%- endif -%}
+        </a>
       </div>
-      <div class="video-section__cover-overlay"></div>
-      <div class="video-section__cover-content">
-        <button class="video-section__load-player-button {% if section.settings.button_label == blank %}video-section__load-player-button--large{% endif %}">
-          <span class="visually-hidden">{{ 'video.play' | t }}</span>
-          <div class="video-section__load-player-icon">
-            <div class="video-section__load-player-button-circle"></div>
-            <div class="video-section__load-player-button-triangle"></div>
-          </div>
-          {% if section.settings.button_label != blank %}
-            <div class="h1 video-section__load-player-text">{{ section.settings.button_label }}</div>
-          {% endif %}
-        </button>
-        <p class="video-section__error"></p>
-      </div>
-    </div>
+    </noscript>
+    <deferred-media class="video-section__media deferred-media no-js-hidden gradient global-media-settings{% if section.settings.full_width %} global-media-settings--full-width{% endif %}" data-media-id="{{ section.settings.video_url.id }}"
+      {% if section.settings.cover_image != blank %} style="padding-bottom: {{ 1 | divided_by: section.settings.cover_image.aspect_ratio | times: 100 }}%;"{% endif %}
+    >
+      <button
+        id="Deferred-Poster-Modal-{{ section.settings.video_url.id }}"
+        class="video-section__poster media deferred-media__poster media--landscape"
+        type="button"
+      >
+        {%- if section.settings.cover_image != blank -%}
+          <img
+            srcset="{%- if section.settings.cover_image.width >= 375 -%}{{ section.settings.cover_image | image_url: width: 375 }} 375w,{%- endif -%}
+              {%- if section.settings.cover_image.width >= 750 -%}{{ section.settings.cover_image | image_url: width: 750 }} 750w,{%- endif -%}
+              {%- if section.settings.cover_image.width >= 1100 -%}{{ section.settings.cover_image | image_url: width: 1100 }} 1100w,{%- endif -%}
+              {%- if section.settings.cover_image.width >= 1500 -%}{{ section.settings.cover_image | image_url: width: 1500 }} 1500w,{%- endif -%}
+              {%- if section.settings.cover_image.width >= 1780 -%}{{ section.settings.cover_image | image_url: width: 1780 }} 1780w,{%- endif -%}
+              {%- if section.settings.cover_image.width >= 2000 -%}{{ section.settings.cover_image | image_url: width: 2000 }} 2000w,{%- endif -%}
+              {%- if section.settings.cover_image.width >= 3000 -%}{{ section.settings.cover_image | image_url: width: 3000 }} 3000w,{%- endif -%}
+              {%- if section.settings.cover_image.width >= 3840 -%}{{ section.settings.cover_image | image_url: width: 3840 }} 3840w,{%- endif -%}
+              {{ section.settings.cover_image | image_url }} {{ section.settings.cover_image.width }}w"
+            src="{{ section.settings.cover_image | image_url: width: 1920 }}"
+            sizes="{% if section.settings.full_width %}100vw{% else %}(min-width: {{ settings.page_width }}px) {{ settings.page_width | minus: 100 }}px, (min-width: 750px) calc(100vw - 10rem), 100vw{% endif %}"
+            alt="{{ 'sections.video.load_video' | t: description: section.settings.description | escape }}"
+            loading="lazy"
+            width="{{ section.settings.cover_image.width }}"
+            height="{{ section.settings.cover_image.height }}"
+          >
+        {%- else -%}
+          {{ 'collection-2' | placeholder_svg_tag: 'placeholder-svg placeholder' }}
+        {%- endif -%}
+        <span class="deferred-media__poster-button motion-reduce">
+          {%- render 'icon-play' -%}
+        </span>
+      </button>
+      <template>
+        {%- if section.settings.video_url.type == 'youtube' -%}
+          <iframe src="https://www.youtube.com/embed/{{ section.settings.video_url.id }}?enablejsapi=1" class="js-youtube" allow="autoplay; encrypted-media" allowfullscreen title="{{ section.settings.description | escape }}"></iframe>
+        {%- else -%}
+          <iframe src="https://player.vimeo.com/video/{{ section.settings.video_url.id }}" class="js-vimeo" allow="autoplay; encrypted-media" allowfullscreen title="{{ section.settings.description | escape }}"></iframe>
+        {%- endif -%}
+      </template>
+    </deferred-media>
   </div>
 </div>
 
 {% schema %}
-  {
-    "name": {
-      "pt-BR": "Vídeo",
-      "it": "Video",
-      "en": "Video",
-      "es": "Video",
-      "de": "Video",
-      "ja": "動画",
-      "fr": "Vidéo"
+{
+  "name": "t:sections.video.name",
+  "tag": "section",
+  "class": "section",
+  "settings": [
+    {
+      "type": "text",
+      "id": "heading",
+      "default": "Video",
+      "label": "t:sections.video.settings.heading.label"
     },
-    "class": "index-section index-section--video",
-    "settings": [
-      {
-        "type": "text",
-        "id": "button_label",
-        "label": {
-          "pt-BR": "Etiqueta do botão",
-          "it": "Etichetta pulsante",
-          "en": "Button label",
-          "es": "Etiqueta de botón",
-          "de": "Button-Etikett",
-          "ja": "ボタンラベル",
-          "fr": "Texte du bouton"
+    {
+      "type": "select",
+      "id": "heading_size",
+      "options": [
+        {
+          "value": "h2",
+          "label": "t:sections.all.heading_size.options__1.label"
+        },
+        {
+          "value": "h1",
+          "label": "t:sections.all.heading_size.options__2.label"
+        },
+        {
+          "value": "h0",
+          "label": "t:sections.all.heading_size.options__3.label"
         }
-      },
-      {
-        "type": "video_url",
-        "id": "video_url",
-        "label": {
-          "pt-BR": "Link do vídeo",
-          "it": "Link video",
-          "en": "Video link",
-          "es": "Enlace de video",
-          "de": "Video-Link",
-          "ja": "ビデオリンク",
-          "fr": "Lien de la vidéo"
+      ],
+      "default": "h1",
+      "label": "t:sections.all.heading_size.label"
+    },
+    {
+      "type": "image_picker",
+      "id": "cover_image",
+      "label": "t:sections.video.settings.cover_image.label"
+    },
+    {
+      "type": "video_url",
+      "id": "video_url",
+      "accept": [
+        "youtube",
+        "vimeo"
+      ],
+      "default": "https://www.youtube.com/watch?v=_9VUPq3SxOc",
+      "label": "t:sections.video.settings.video_url.label",
+      "placeholder": "t:sections.video.settings.video_url.placeholder",
+      "info": "t:sections.video.settings.video_url.info"
+    },
+    {
+      "type": "text",
+      "id": "description",
+      "label": "t:sections.video.settings.description.label",
+      "info": "t:sections.video.settings.description.info"
+    },
+    {
+      "type": "checkbox",
+      "id": "full_width",
+      "label": "t:sections.video.settings.full_width.label",
+      "default": false
+    },
+    {
+      "type": "select",
+      "id": "color_scheme",
+      "options": [
+        {
+          "value": "accent-1",
+          "label": "t:sections.all.colors.accent_1.label"
         },
-        "accept": [
-          "youtube",
-          "vimeo"
-        ]
-      },
-      {
-        "type": "header",
-        "content": {
-          "pt-BR": "Capa",
-          "it": "Copertina",
-          "en": "Cover",
-          "es": "Portada",
-          "de": "Cover",
-          "ja": "カバー",
-          "fr": "Couverture"
+        {
+          "value": "accent-2",
+          "label": "t:sections.all.colors.accent_2.label"
+        },
+        {
+          "value": "background-1",
+          "label": "t:sections.all.colors.background_1.label"
+        },
+        {
+          "value": "background-2",
+          "label": "t:sections.all.colors.background_2.label"
+        },
+        {
+          "value": "inverse",
+          "label": "t:sections.all.colors.inverse.label"
         }
-      },
-      {
-        "type": "image_picker",
-        "id": "cover_image",
-        "label": {
-          "pt-BR": "Imagem",
-          "it": "Immagine",
-          "en": "Image",
-          "es": "Imagen",
-          "de": "Foto",
-          "ja": "画像",
-          "fr": "Image"
-        }
-      },
-      {
-        "type": "select",
-        "id": "cover_image_position",
-        "label": {
-          "pt-BR": "Posição da imagem",
-          "it": "Posizione Immagine",
-          "en": "Image position",
-          "es": "Posición de la imagen",
-          "de": "Foto-Position",
-          "ja": "画像の位置",
-          "fr": "Position de l'image"
-        },
-        "default": "center center",
-        "options": [
-          {
-            "label": {
-              "pt-BR": "Superior esquerdo",
-              "it": "In alto a sinistra",
-              "en": "Top left",
-              "es": "Superior izquierda",
-              "de": "Oben links",
-              "ja": "左上",
-              "fr": "En haut à gauche"
-            },
-            "value": "top left"
-          },
-          {
-            "label": {
-              "pt-BR": "Superior centro",
-              "it": "In alto al centro",
-              "en": "Top center",
-              "es": "Superior al centro",
-              "de": "Oben Mitte",
-              "ja": "中央上",
-              "fr": "En haut au centre"
-            },
-            "value": "top center"
-          },
-          {
-            "label": {
-              "pt-BR": "Superior direito",
-              "it": "In alto a destra",
-              "en": "Top right",
-              "es": "Superior derecha",
-              "de": "Oben rechts",
-              "ja": "右上",
-              "fr": "En haut à droite"
-            },
-            "value": "top right"
-          },
-          {
-            "label": {
-              "pt-BR": "Meio esquerdo",
-              "it": "In mezzo a sinistra",
-              "en": "Middle left",
-              "es": "Al medio a la izquierda",
-              "de": "Mitte links",
-              "ja": "中央左",
-              "fr": "Au milieu à gauche"
-            },
-            "value": "center left"
-          },
-          {
-            "label": {
-              "pt-BR": "Meio centro",
-              "it": "In mezzo al centro",
-              "en": "Middle center",
-              "es": "Al medio al centro",
-              "de": "Mitte mittig",
-              "ja": "中央中",
-              "fr": "Centrée au milieu"
-            },
-            "value": "center center"
-          },
-          {
-            "label": {
-              "pt-BR": "Meio direito",
-              "it": "In centro a destra",
-              "en": "Middle right",
-              "es": "Al medio a la derecha",
-              "de": "Mitte rechts",
-              "ja": "中央右",
-              "fr": "Au milieu à droite"
-            },
-            "value": "center right"
-          },
-          {
-            "label": {
-              "pt-BR": "Inferior esquerdo",
-              "it": "In basso a sinistra",
-              "en": "Bottom left",
-              "es": "Inferior izquierda",
-              "de": "Unten links",
-              "ja": "左下",
-              "fr": "En bas à gauche"
-            },
-            "value": "bottom left"
-          },
-          {
-            "label": {
-              "pt-BR": "Inferior centro",
-              "it": "In basso al centro",
-              "en": "Bottom center",
-              "es": "Inferior al centro",
-              "de": "Unten mittig",
-              "ja": "中央下",
-              "fr": "En bas au centre"
-            },
-            "value": "bottom center"
-          },
-          {
-            "label": {
-              "pt-BR": "Inferior direito",
-              "it": "In basso a destra",
-              "en": "Bottom right",
-              "es": "Inferior derecha",
-              "de": "Unten rechts",
-              "ja": "右下",
-              "fr": "En bas à droite"
-            },
-            "value": "bottom right"
-          }
-        ]
-      },
-      {
-        "type": "select",
-        "id": "cover_image_height",
-        "label": {
-          "pt-BR": "Altura da imagem",
-          "it": "Altezza immagine",
-          "en": "Image height",
-          "es": "Altura de imagen",
-          "de": "Bildhöhe",
-          "ja": "画像の高さ",
-          "fr": "Hauteur de l'image"
-        },
-        "default": "short",
-        "options": [
-          {
-            "value": "short",
-            "label": {
-              "pt-BR": "Pequena",
-              "it": "Bassa",
-              "en": "Short",
-              "es": "Baja",
-              "de": "Niedrig",
-              "ja": "低い",
-              "fr": "Petite"
-            }
-          },
-          {
-            "value": "tall",
-            "label": {
-              "pt-BR": "Alta",
-              "it": "Alta",
-              "en": "Tall",
-              "es": "Alta",
-              "de": "Hoch",
-              "ja": "高い",
-              "fr": "Grande"
-            }
-          }
-        ]
-      },
-      {
-        "type": "header",
-        "content": {
-          "pt-BR": "Sobreposição",
-          "it": "Sovrapposizione",
-          "en": "Overlay",
-          "es": "Superposición",
-          "de": "Overlay",
-          "ja": "オーバーレイ",
-          "fr": "Superposition"
-        }
-      },
-      {
-        "type": "checkbox",
-        "id": "show_overlay",
-        "label": {
-          "pt-BR": "Exibir sobreposição",
-          "it": "Mostra sovrapposizione",
-          "en": "Show overlay",
-          "es": "Mostrar superposición",
-          "de": "Überlagerung anzeigen",
-          "ja": "オーバーレイを表示する",
-          "fr": "Afficher la superposition"
-        },
-        "default": true
-      },
-      {
-        "type": "color",
-        "id": "overlay_color",
-        "label": {
-          "pt-BR": "Sobreposição",
-          "it": "Sovrapposizione",
-          "en": "Overlay",
-          "es": "Superposición",
-          "de": "Overlay",
-          "ja": "オーバーレイ",
-          "fr": "Superposition"
-        },
-        "default": "#000000"
-      },
-      {
-        "type": "range",
-        "id": "overlay_opacity",
-        "min": 0,
-        "max": 100,
-        "step": 5,
-        "unit": {
-          "pt-BR": "%",
-          "it": "%",
-          "en": "%",
-          "es": "%",
-          "de": "%",
-          "ja": "%",
-          "fr": "%"
-        },
-        "label": {
-          "pt-BR": "Opacidade",
-          "it": "Opacità",
-          "en": "Opacity",
-          "es": "Opacidad",
-          "de": "Opazität",
-          "ja": "不透過率",
-          "fr": "Opacité"
-        },
-        "default": 30
-      }
-    ],
-    "presets": [
-      {
-        "name": {
-          "pt-BR": "Vídeo",
-          "it": "Video",
-          "en": "Video",
-          "es": "Video",
-          "de": "Video",
-          "ja": "動画",
-          "fr": "Vidéo"
-        },
-        "category": {
-          "pt-BR": "Vídeo",
-          "it": "Video",
-          "en": "Video",
-          "es": "Video",
-          "de": "Video",
-          "ja": "動画",
-          "fr": "Vidéo"
-        }
-      }
-    ]
-  }
+      ],
+      "default": "background-1",
+      "label": "t:sections.all.colors.label"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.all.padding.section_padding_heading"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px",
+      "label": "t:sections.all.padding.padding_top",
+      "default": 36
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px",
+      "label": "t:sections.all.padding.padding_bottom",
+      "default": 36
+    }
+  ],
+  "presets": [
+    {
+      "name": "t:sections.video.presets.name"
+    }
+  ]
+}
 {% endschema %}
