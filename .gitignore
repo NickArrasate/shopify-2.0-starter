@@ -1,3 +1,6 @@
+#ignore everything
+*
+!shopify/
 # OS generated files
 .DS_Store
 .DS_Store?
