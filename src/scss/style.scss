@@ -14,3 +14,7 @@ $blue: --color-base-background-2;
 body{
   background-color: $blue !important;
 }
+p {
+  color: {{settings.color_one}};
+
+}
