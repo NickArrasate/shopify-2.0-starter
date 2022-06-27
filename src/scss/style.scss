@@ -10,7 +10,7 @@
 // =========================================
 @use './utility/screen-reader';
 @use './utility/text-align';
-$blue: grey;
+$blue: --color-base-background-2;
 body{
   background-color: $blue !important;
 }

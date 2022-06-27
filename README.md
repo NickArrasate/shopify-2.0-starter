@@ -124,6 +124,12 @@ Retrieve theme files from Shopify without deleting local files.
 yarn pull
 ```
 
+
+### Version Conrolled Deploy command
+Commit to dev repo then:
+```bash
+yarn bowtie-theme
+```
 ### Push command
 
 Upload your local theme files to Shopify without deleting remote files.
