@@ -5,6 +5,7 @@
   "author": "Kazuki Yonemoto (https://dev.to/tim_yone)",
   "license": "MIT",
   "scripts": {
+    "bowtie-theme": "yarn build && git subtree pull --prefix shopify https://github.com/NickArrasate/2.0-starter-prod-build.git master --squash && yarn deploy && git push",
     "start": "npm-run-all -p theme:serve webpack:watch",
     "build": "npm-run-all webpack:prd",
     "build:dev": "npm-run-all webpack:dev",
