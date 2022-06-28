@@ -48,6 +48,12 @@ Clone this repository and install dependencies.
 ```bash
 yarn install
 ```
+### Configure the theme subtree (this will be hooked to the Shopify Integration for CI and VC with the Admin)
+#### A subtree repo is used to store the production version of the theme. Develop it in this repo and push/pull to the subtree to use the Shopify > GitHub Integration.
+1. from the shopify admin, download a zip of the desired theme and upload it to a new SUBTREE REPO. The directory structure of this subtree must be EXACTLY the same as a default theme.
+2. use ‘git subtree add --prefix shopify SSH-ADDRESS-OF-SUBTREE-REPO master --squash’
+3. add 'git subtree pull --prefix shopify SSH-ADDRESS-OF-SUBTREE-REPO master --squash' to the 'bowtie-theme' command in the package.json.
+
 
 ### Authenticate
 
